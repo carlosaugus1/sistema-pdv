@@ -1,0 +1,1353 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PDV Revvo Milk - Touch</title>
+    <link rel="icon" href="image/ico_revvo.ico" type="image/x-icon">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
+    <style>
+        :root {
+            --primary: #8A2BE2;
+            --primary-dark: #6A1B9A;
+            --secondary: #FF6B85;
+            --light: #FFFFFF;
+            --dark: #333333;
+            --success: #4CAF50;
+            --danger: #F44336;
+            --warning: #FF9800;
+            --info: #2196F3;
+            --touch-size: 70px; /* Aumentado para melhor toque */
+            --border-radius: 12px;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        body {
+            background-color: #f4f4f9;
+            color: var(--dark);
+            line-height: 1.6;
+            touch-action: manipulation;
+            padding: 5px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 10px;
+        }
+        
+        header {
+            background: var(--light);
+            color: var(--dark);
+            padding: 15px;
+            border-radius: var(--border-radius);
+            margin-bottom: 15px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            text-align: center;
+            position: relative;
+            border: 1px solid #e0e0e0;
+        }
+        
+        .logo-container {
+            height: 60px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .logo-placeholder {
+            width: 150px;
+            height: 60px;
+            background-color: #f0f0f0;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            color: #888;
+            border: 2px dashed #ccc;
+        }
+        
+        .subtitle {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+        
+        .current-date {
+            margin-top: 5px;
+            font-size: 14px;
+            background: #f0f0f0;
+            color: var(--dark);
+            padding: 5px 10px;
+            border-radius: 20px;
+            display: inline-block;
+        }
+        
+        .tabs {
+            display: flex;
+            background: white;
+            border-radius: var(--border-radius);
+            overflow: hidden;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+        
+        .tab {
+            flex: 1;
+            padding: 15px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 600;
+            border-bottom: 3px solid transparent;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        
+        .tab.active {
+            background: white;
+            color: var(--primary);
+            border-bottom: 3px solid var(--primary);
+        }
+        
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+
+        .section-card {
+            background: white;
+            border-radius: var(--border-radius);
+            padding: 15px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            margin-bottom: 15px;
+            border: 1px solid #e0e0e0;
+        }
+        
+        .section-title {
+            font-size: 18px;
+            margin-bottom: 10px;
+            color: var(--primary);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: 600;
+        }
+        
+        .weight-controls {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+        
+        .weight-input {
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 18px;
+            text-align: center;
+            font-weight: bold;
+        }
+        
+        .weight-input:focus {
+            border-color: var(--primary);
+            outline: none;
+        }
+        
+        .product-info {
+            display: flex;
+            justify-content: space-between;
+            background: #f9f9f9;
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+        
+        .quick-add-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .quick-add-btn {
+            padding: 20px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            background: white;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: center;
+        }
+        .quick-add-btn:active {
+            transform: scale(0.98);
+            background: #f0f0f0;
+        }
+        .quick-add-btn .price {
+            font-size: 1rem;
+            color: var(--primary);
+            display: block;
+            margin-top: 5px;
+        }
+
+        .product-price {
+            font-weight: bold;
+            color: var(--primary);
+            font-size: 16px;
+        }
+        
+        .touch-btn {
+            height: var(--touch-size);
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+            padding: 0 1rem;
+        }
+        
+        .touch-btn:active { transform: scale(0.95); }
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-secondary { background: #e0e0e0; color: var(--dark); }
+        .btn-success { background: var(--success); color: white; }
+        .btn-danger { background: var(--danger); color: white; }
+        
+        .cart-items {
+            min-height: 100px;
+            max-height: 200px;
+            overflow-y: auto;
+            margin-bottom: 10px;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 10px;
+        }
+        
+        .cart-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+        }
+        .cart-item:last-child { border-bottom: none; }
+        
+        .item-info { display: flex; align-items: center; gap: 10px; }
+        .item-quantity {
+            background: var(--primary); color: white; width: 25px; height: 25px;
+            border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            font-size: 12px; font-weight: bold; flex-shrink: 0;
+        }
+        .item-details { display: flex; flex-direction: column; }
+        .item-name { font-weight: 600; color: #444; }
+        .item-weight { font-size: 12px; color: #666; }
+        .item-price { font-weight: bold; color: var(--primary); }
+        .item-actions { display: flex; gap: 5px; }
+        
+        .btn-small {
+            background: #f0f0f0; border: none; width: 35px; height: 35px;
+            border-radius: 4px; cursor: pointer; display: flex;
+            align-items: center; justify-content: center; font-size: 16px;
+        }
+        .btn-small:active { transform: scale(0.9); }
+        .btn-remove { color: var(--danger); }
+        
+        .cart-summary { background: #f9f9f9; padding: 15px; border-radius: 8px; margin-top: 10px; }
+        .summary-row { display: flex; justify-content: space-between; margin-bottom: 10px; font-weight: 600;}
+        .total {
+            font-size: 18px; font-weight: bold; color: var(--primary);
+            border-top: 1px solid #ddd; padding-top: 10px;
+        }
+        
+        .action-buttons { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
+        
+        .payment-options { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 15px; }
+        
+        .payment-option {
+            padding: 20px 10px;
+            border: 2px solid #e0e0e0; border-radius: 8px;
+            text-align: center; cursor: pointer; transition: all 0.3s; font-weight: 600;
+        }
+        .payment-option.selected { border-color: var(--primary); background: rgba(138, 43, 226, 0.1); }
+        .payment-option i { font-size: 24px; margin-bottom: 5px; display: block; }
+        
+        .cash-input { margin-top: 15px; display: none; }
+        .cash-input input {
+            width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 6px;
+            font-size: 16px; margin-bottom: 10px; text-align: center;
+        }
+        .change-display {
+            padding: 10px; background: #e8f5e9; border-radius: 6px; text-align: center;
+            font-weight: bold; color: var(--success); display: none;
+        }
+        
+        .products-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 10px; align-items: stretch; }
+        
+        .product-card {
+            background: #f9f9f9;
+            border-radius: 8px;
+            padding: 10px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 2px solid transparent;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        .product-card:hover { transform: translateY(-2px); box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); }
+        
+        .product-image {
+            width: 90px;
+            height: 90px;
+            background-color: #e0e0e0;
+            border-radius: 8px;
+            margin: 0 auto 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            color: #666;
+            overflow: hidden;
+        }
+        .product-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .product-details { flex-grow: 1; display: flex; flex-direction: column; justify-content: center; }
+        .product-name {
+            font-weight: 600;
+            color: #444;
+            margin-bottom: 5px;
+            word-wrap: break-word;
+            flex-grow: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 40px;
+        }
+        .product-price-card { font-weight: bold; color: var(--primary); }
+        
+        .history-controls { display: grid; grid-template-columns: 1fr auto auto; gap: 10px; margin-bottom: 15px; align-items: center; }
+        .date-selector { flex: 1; padding: 12px; border: 1px solid #ddd; border-radius: 6px; font-size: 16px; }
+        #add-manual-sale-btn, #export-history-pdf { height: auto; padding: 12px 15px; font-size: 16px; }
+        
+        .sales-history { max-height: 400px; overflow-y: auto; }
+        
+        .sale-item {
+            padding: 12px 40px 12px 12px;
+            border-bottom: 1px solid #eee; display: flex;
+            justify-content: space-between; align-items: center; position: relative;
+        }
+        .sale-item:hover { background: #f9f9f9; }
+        
+        .sale-info { display: flex; flex-direction: column; flex: 1; }
+        .sale-date { font-size: 12px; color: #666; }
+        .sale-items { font-size: 14px; margin: 5px 0; font-weight: 600;}
+        .sale-payment { display: flex; align-items: center; gap: 5px; font-size: 14px; }
+        .payment-icon { font-size: 16px; }
+        .sale-total { font-weight: bold; color: var(--primary); font-size: 16px; }
+        
+        .delete-sale {
+            position: absolute; right: 10px; top: 50%; transform: translateY(-50%);
+            background: none; border: none; color: var(--danger);
+            cursor: pointer; font-size: 20px; opacity: 0.7;
+        }
+        .delete-sale:hover { opacity: 1; }
+        
+        .empty-state { text-align: center; padding: 30px; color: #666; }
+        
+        .admin-sub-tabs { display: flex; gap: 10px; margin-bottom: 15px; border-bottom: 1px solid #ddd; }
+        .admin-sub-tab { padding: 10px; cursor: pointer; border-bottom: 3px solid transparent; font-weight: 600; }
+        .admin-sub-tab.active { color: var(--primary); border-bottom-color: var(--primary); }
+        .admin-sub-content { display: none; }
+        .admin-sub-content.active { display: block; }
+
+        .admin-section { margin-bottom: 20px; }
+        .admin-section h3 { margin-bottom: 10px; border-bottom: 1px solid #eee; padding-bottom: 5px; font-weight: 600; }
+        .admin-controls { display: grid; grid-template-columns: 1fr auto; gap: 10px; align-items: center; margin-bottom: 10px; }
+        .admin-controls label { font-weight: 600; text-align: left;}
+        .admin-input {
+            padding: 10px; border: 1px solid #ddd; border-radius: 6px;
+            font-size: 16px; width: 100%;
+        }
+        
+        .login-form { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .login-form .touch-btn { grid-column: 1 / -1; }
+        
+        .logged-in { display: none; }
+        .logged-in-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .user-info { font-weight: 600; color: var(--primary); }
+        
+        .products-management-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 15px; }
+        
+        .notification {
+            position: fixed; top: 20px; right: 20px; padding: 15px 20px;
+            border-radius: 6px; color: white; font-weight: 600; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            z-index: 1000; opacity: 0; transform: translateX(100%); transition: all 0.3s ease;
+        }
+        .notification.show { opacity: 1; transform: translateX(0); }
+        .notification.success { background: var(--success); }
+        .notification.error { background: var(--danger); }
+        .notification.warning { background: var(--warning); }
+        
+        .products-categories { display: flex; overflow-x: auto; gap: 10px; margin-bottom: 15px; padding-bottom: 5px; }
+        .category-btn {
+            padding: 10px 15px; background: #f0f0f0; border: none;
+            border-radius: 20px; cursor: pointer; white-space: nowrap; font-size: 14px; font-weight: 600;
+        }
+        .category-btn.active { background: var(--primary); color: white; }
+        
+        .modal {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.6); z-index: 1001; align-items: center; justify-content: center;
+        }
+        
+        .modal-content {
+            background: white; padding: 20px; border-radius: 10px;
+            width: 90%; max-width: 450px; text-align: center;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+        
+        .password-input {
+            width: 100%; padding: 12px; margin: 15px 0; border: 1px solid #ddd;
+            border-radius: 6px; font-size: 16px; text-align: center;
+        }
+        
+        #receipt-content {
+            font-family: 'Courier New', monospace;
+            text-align: left;
+            padding: 15px;
+            border: 1px solid #ccc;
+            background: #fdfdfd;
+            margin-bottom: 15px;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+
+        /* Estilos Responsivos Adicionados */
+        @media (max-width: 768px) {
+            .tabs {
+                flex-wrap: wrap;
+            }
+            .tab {
+                flex-basis: 50%; /* 2 abas por linha */
+                font-size: 0.9rem;
+            }
+            .touch-btn {
+                font-size: 1rem;
+                height: 65px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            body {
+                -webkit-text-size-adjust: 100%; /* Previne o zoom automático de fontes no iOS */
+            }
+            .container {
+                padding: 0 5px;
+            }
+            .section-card {
+                padding: 10px;
+            }
+            .weight-controls,
+            .action-buttons,
+            .quick-add-buttons,
+            .login-form {
+                grid-template-columns: 1fr;
+            }
+             .history-controls {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+            .touch-btn {
+                height: 60px;
+            }
+            .sale-item {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 8px;
+                padding-bottom: 15px;
+                padding-top: 15px;
+            }
+             .delete-sale {
+                top: 15px;
+                right: 5px;
+                transform: none;
+            }
+            .modal-content {
+                width: 95%;
+            }
+        }
+
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo-container">
+                <img src="image/revvo_milk.png" alt="Logo da Revvo Milk" style="height: 60px;">
+            </div>
+            <div class="subtitle">Sistema touch para controle de vendas</div>
+            <div class="current-date" id="current-date">--/--/----</div>
+        </header>
+        
+        <div class="tabs">
+            <div class="tab active" data-tab="venda">🛒 <span>Venda</span></div>
+            <div class="tab" data-tab="produtos">🍦 <span>Produtos</span></div>
+            <div class="tab" data-tab="historico">📜 <span>Histórico</span></div>
+            <div class="tab" data-tab="admin">⚙️ <span>Administrativo</span></div>
+        </div>
+        
+        <!-- Aba Venda -->
+        <div class="tab-content active" id="venda-tab">
+            <div class="section-card">
+                <h2 class="section-title">
+                    <span>Pesar Açaí</span>
+                    <span class="product-price">R$ <span id="acai-price-display">0.00</span>/kg</span>
+                </h2>
+                
+                <div class="weight-controls">
+                    <input type="number" class="weight-input" id="weight-input" placeholder="Gramas" min="0">
+                    <button id="add-to-cart" class="touch-btn btn-primary">Adicionar</button>
+                </div>
+                
+                <div class="product-info">
+                    <div>Valor calculado:</div>
+                    <div class="product-price">R$ <span id="calculated-price">0.00</span></div>
+                </div>
+
+                <div class="quick-add-buttons">
+                    <button class="quick-add-btn" data-product-id="1">
+                        Água <span class="price">R$ 2,00</span>
+                    </button>
+                    <button class="quick-add-btn" data-product-id="2">
+                        Água com Gás <span class="price">R$ 3,00</span>
+                    </button>
+                </div>
+            </div>
+            
+            <div class="section-card">
+                <h2 class="section-title">Carrinho de Vendas</h2>
+                <div class="cart-items" id="cart-items">
+                    <div class="empty-state">Carrinho vazio</div>
+                </div>
+                
+                <div class="cart-summary">
+                    <div class="summary-row">
+                        <span>Subtotal:</span>
+                        <span id="subtotal">R$ 0,00</span>
+                    </div>
+                    <div class="summary-row total">
+                        <span>Total:</span>
+                        <span id="total">R$ 0,00</span>
+                    </div>
+                </div>
+                
+                <div class="action-buttons">
+                    <button id="finish-sale" class="touch-btn btn-success">Finalizar Venda</button>
+                    <button id="cancel-sale" class="touch-btn btn-danger">Cancelar Venda</button>
+                </div>
+            </div>
+            
+            <div class="section-card payment-section">
+                <h2 class="section-title">Pagamento</h2>
+                <div class="payment-options">
+                    <div class="payment-option" data-method="cash"><i>💵</i><div>Dinheiro</div></div>
+                    <div class="payment-option" data-method="card"><i>💳</i><div>Cartão</div></div>
+                    <div class="payment-option" data-method="pix"><i>📱</i><div>PIX</div></div>
+                </div>
+                
+                <div class="cash-input" id="cash-input">
+                    <input type="number" id="cash-received" placeholder="Valor recebido em R$">
+                    <div class="change-display" id="change-display">
+                        Troco: R$ <span id="change-amount">0,00</span>
+                    </div>
+                </div>
+                
+                <button id="confirm-payment" class="touch-btn btn-success" style="width: 100%; margin-top: 10px; display: none;">
+                    Confirmar Pagamento
+                </button>
+            </div>
+        </div>
+        
+        <!-- Aba Produtos -->
+        <div class="tab-content" id="produtos-tab">
+            <div class="section-card">
+                <h2 class="section-title">Produtos</h2>
+                <div class="search-container" style="margin-bottom: 15px;">
+                    <input type="search" id="product-search" class="admin-input" placeholder="🔍 Pesquisar produto...">
+                </div>
+                <div class="products-categories" id="products-categories-list">
+                    <!-- Categorias carregadas via JS -->
+                </div>
+                <div class="products-grid" id="products-grid">
+                    <!-- Produtos carregados via JS -->
+                </div>
+            </div>
+        </div>
+        
+        <!-- Aba Histórico -->
+        <div class="tab-content" id="historico-tab">
+            <div class="section-card">
+                <h2 class="section-title">Histórico de Vendas</h2>
+                <div class="history-controls">
+                    <input type="date" class="date-selector" id="history-date">
+                    <button id="export-history-pdf" class="touch-btn btn-secondary">Exportar</button>
+                    <button id="add-manual-sale-btn" class="touch-btn btn-primary">Adicionar</button>
+                </div>
+                <div class="sales-history" id="sales-history">
+                    <div class="empty-state">Nenhuma venda para esta data</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Aba Administrativo -->
+        <div class="tab-content" id="admin-tab">
+            <div class="section-card">
+                <div id="login-section">
+                    <h2 class="section-title">Acesso Restrito</h2>
+                    <div class="login-form">
+                        <input type="text" id="username" class="admin-input" placeholder="Usuário">
+                        <input type="password" id="password" class="admin-input" placeholder="Senha">
+                        <button id="login-btn" class="touch-btn btn-primary">Entrar</button>
+                    </div>
+                </div>
+
+                <div class="logged-in" id="admin-controls-panel">
+                    <div class="logged-in-header">
+                         <div class="user-info">Logado como: <span id="logged-user">Admin</span></div>
+                         <button id="logout-btn" class="touch-btn btn-secondary" style="height: auto; padding: 10px 15px;">Sair</button>
+                    </div>
+                    
+                    <div class="admin-sub-tabs">
+                        <div class="admin-sub-tab active" data-subtab="produtos">Produtos e Preços</div>
+                        <div class="admin-sub-tab" data-subtab="config">Configurações Gerais</div>
+                    </div>
+
+                    <div class="admin-sub-content active" id="admin-produtos-content">
+                        <div class="admin-section">
+                            <h3>Preço por KG</h3>
+                            <div class="admin-controls">
+                                <label for="acai-price">Açaí (R$/kg)</label>
+                                <input type="number" id="acai-price" class="admin-input" step="0.01">
+                            </div>
+                             <button id="update-acai-price" class="touch-btn btn-primary" style="width:100%; margin-bottom: 10px;">Atualizar Preço Açaí</button>
+                        </div>
+                        <div class="admin-section">
+                            <h3>Gerenciar Produtos da Vitrine</h3>
+                            <div class="products-management-grid" id="products-management">
+                                <!-- Gerenciamento de produtos carregado via JS -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="admin-sub-content" id="admin-config-content">
+                        <div class="admin-section">
+                            <h3>Senha de Exclusão</h3>
+                            <div class="admin-controls">
+                                <label for="delete-password">Nova senha (4 dígitos)</label>
+                                <input type="password" id="delete-password" class="admin-input" maxlength="4">
+                            </div>
+                             <button id="update-delete-password" class="touch-btn btn-primary" style="width:100%;">Atualizar Senha</button>
+                        </div>
+                         <div class="admin-section">
+                            <h3>Usuários e Permissões</h3>
+                            <p class="empty-state" style="padding:10px;">(Área para futuras configurações de usuários)</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Modais -->
+    <div class="modal" id="password-modal">
+        <div class="modal-content">
+            <h3>Excluir Venda</h3>
+            <p>Digite a senha para confirmar a exclusão:</p>
+            <input type="password" class="password-input" id="confirm-delete-password" maxlength="4" placeholder="Senha">
+            <div style="display: flex; gap: 10px; margin-top: 15px;">
+                <button id="confirm-delete" class="touch-btn btn-danger" style="flex: 1;">Confirmar</button>
+                <button id="cancel-delete" class="touch-btn btn-secondary" style="flex: 1;">Cancelar</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="receipt-modal">
+        <div class="modal-content">
+            <h3>Venda Finalizada</h3>
+            <div id="receipt-content"></div>
+            <div style="display: flex; gap: 10px; margin-top: 15px;">
+                <button id="print-receipt-btn" class="touch-btn btn-success" style="flex: 1;">Imprimir Recibo</button>
+                <button id="close-receipt-btn" class="touch-btn btn-secondary" style="flex: 1;">Fechar</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="manual-sale-modal">
+        <div class="modal-content">
+            <h3>Adicionar Venda Manual</h3>
+            <div id="manual-sale-form">
+                <div class="admin-controls" style="grid-template-columns: 1fr; text-align: left;">
+                    <label for="manual-product-select">Selecionar Produto:</label>
+                    <select id="manual-product-select" class="admin-input"></select>
+                </div>
+                <div class="admin-controls" id="manual-acai-weight-section" style="display: none; grid-template-columns: 1fr; text-align: left;">
+                    <label for="manual-acai-weight">Peso em Gramas:</label>
+                    <input type="number" id="manual-acai-weight" class="admin-input" placeholder="Gramas">
+                </div>
+                <button id="manual-add-item-btn" class="touch-btn btn-primary" style="width: 100%; margin: 10px 0; height: 50px;">Adicionar Item</button>
+
+                <h4>Itens da Venda</h4>
+                <div class="cart-items" id="manual-sale-cart-items" style="max-height: 150px;">
+                    <div class="empty-state">Nenhum item adicionado</div>
+                </div>
+                 <div class="cart-summary" id="manual-sale-summary" style="display: none;">
+                    <div class="summary-row total">
+                        <span>Total:</span>
+                        <span id="manual-sale-total">R$ 0,00</span>
+                    </div>
+                </div>
+
+                <h4>Pagamento</h4>
+                <div class="payment-options" id="manual-payment-options">
+                    <div class="payment-option" data-method="cash" style="padding: 10px;"><i>💵</i></div>
+                    <div class="payment-option" data-method="card" style="padding: 10px;"><i>💳</i></div>
+                    <div class="payment-option" data-method="pix" style="padding: 10px;"><i>📱</i></div>
+                </div>
+            </div>
+            <div style="display: flex; gap: 10px; margin-top: 15px;">
+                <button id="save-manual-sale-btn" class="touch-btn btn-success" style="flex: 1;">Salvar Venda</button>
+                <button id="close-manual-sale-btn" class="touch-btn btn-secondary" style="flex: 1;">Cancelar</button>
+            </div>
+        </div>
+    </div>
+    
+    <div id="notification" class="notification"></div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const App = {
+                state: {
+                    cart: [],
+                    manualSaleCart: [],
+                    salesHistory: {},
+                    products: [
+                        { id: 1, name: "Água", price: 2.00, category: "Bebidas", image: "" }, 
+                        { id: 2, name: "Água com Gás", price: 3.00, category: "Bebidas", image: "" },
+                        { id: 3, name: "Supra Pistache", price: 12.50, category: "Supra", image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRXdZW31v_iUiSoUuM6zkbzQnT4Avj2d2j-CA&s" }, 
+                        { id: 4, name: "Supra Castanha", price: 9.50, category: "Supra", image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTqIGaCqPtoWrTVq06RvZdFQRj4Js6DcdA0yA&s" },
+                        { id: 5, name: "Supra Chocolate", price: 9.50, category: "Supra", image: "https://ibassets.com.br/ib.item.image.large/l-c1e59bba6d0047a69b0d26b2c3a76b49.jpeg" }, 
+                        { id: 6, name: "Supra Chocolate Branco", price: 9.50, category: "Supra", image: "https://ibassets.com.br/ib.item.image.large/l-923e34c488414cee80e6f53bda981e6f.jpeg" },
+                        { id: 7, name: "Supra Cookies & Cream", price: 9.50, category: "Supra", image: "https://ibassets.com.br/ib.item.image.large/l-5895829e67c34909aae0956d2323f465.png" }, 
+                        { id: 8, name: "Supra Mouse de Limão", price: 9.50, category: "Supra", image: "https://ibassets.com.br/ib.item.image.large/l-d254bd57310e4eb18e60a3982e65f5ce.jpeg" },
+                        { id: 9, name: "Açaí e Banana", price: 4.75, category: "Original", image: "https://ibassets.com.br/ib.item.image.large/l-3542c1f326c946cf85715ac58aae3b0f.jpeg" }, 
+                        { id: 10, name: "Cajá", price: 4.75, category: "Original", image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQGZ4zDf1DskLCut5mpOOVj8stQZWvtAt3s-w&s" },
+                        { id: 11, name: "Castanha", price: 4.75, category: "Original", image: "https://blogboasdicas.com/wp-content/uploads/2019/04/Pardal-Castanha-Sorvete-Lancamento-e1554990588692.jpeg" }, 
+                        { id: 12, name: "Coco", price: 4.75, category: "Original", image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRbyEeyMfWRzDgtIiAuKifNnM9iWkDf5B93lA&s" },
+                        { id: 13, name: "Milho", price: 4.75, category: "Original", image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSyYpyGG0M3frKXkRTP4Ayyr-0p2EvG03B8tg&s" }, 
+                        { id: 14, name: "Tapioca", price: 4.75, category: "Original", image: "https://ibassets.com.br/ib.item.image.large/l-37b6382ac04744089b05121fde5bced0.jpeg" },
+                        { id: 15, name: "Vita Açaí", price: 6.00, category: "Vita", image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR9fDFsO3A7l4GS5IaW0zOh_Ef8LXVTbar_cw&s" }, 
+                        { id: 16, name: "Vita Morango", price: 6.00, category: "Vita", image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQyUDbUXVxyOl6mdmS0B9nrTSGnQf3_TYsR9Q&s" },
+                        { id: 17, name: "Vita Cajá", price: 6.00, category: "Vita", image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSSZSqWvd-npezB_t0a5tWL5NpOsPK3Dqonmw&s" }, 
+                        { id: 18, name: "Vita Whey Chocolate", price: 6.50, category: "Vita Whey", image: "https://cdnimages.ligafiles.com.br/preset=thumbnail_180/item_images/11775/687509c26930dwc6nf.webp" },
+                        { id: 19, name: "Vita Whey Amendoim", price: 6.50, category: "Vita Whey", image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ9h5z22KNZo61-5aS7CvR7YkL7Rsm7zl1VXg&s" }, 
+                        { id: 20, name: "Limão", price: 3.75, category: "Pardal Livre- Zero Lac", image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRxF0t6jnG84AHI6XfpBVEc9wQ6xzaew-ImYA&s" },
+                        { id: 21, name: "Maracujá", price: 3.75, category: "Pardal Livre- Zero Lac", image: "https://cdnimages.ligafiles.com.br/preset=thumbnail_180/item_images/11770/6874f6e1e4dacj2cp6.webp" }, 
+                        { id: 22, name: "Tangerina", price: 3.75, category: "Pardal Livre- Zero Lac", image: "https://cdnimages.ligafiles.com.br/preset=thumbnail_180/item_images/11770/6874f6e20960edpc67.webp" },
+                        { id: 23, name: "Brigadeiro", price: 4.00, category: "Clássicos", image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTLoTC_wGAUzvoKcICswgUfAudu2yZM12h9dw&s" }, 
+                        { id: 24, name: "Flocos", price: 4.00, category: "Clássicos", image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRmps59oBbaTRueUq5i409uv30twSt72uewhQ&s" },
+                        { id: 25, name: "Chocolate", price: 4.00, category: "Clássicos", image: "https://ibassets.com.br/ib.item.image.large/l-44dd99e6f3c94d3c950cde03ef1c3bb2.jpeg" }, 
+                        { id: 26, name: "Morango", price: 4.00, category: "Clássicos", image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRMcsX94xe0SvAgtFxYNKIB5oqDIRMqfPSfnw&s" },
+                        { id: 27, name: "Doce de Leite", price: 3.50, category: "Fun", image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTbPLXXLJR7gVSE7T4mAIZTVabUWUJJJtQowQ&s" }, 
+                        { id: 28, name: "Leite Condensado", price: 3.50, category: "Fun", image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSFE6XnJqiIwxB66asiqAD3tzbAPRZb2rhJUw&s" },
+                        { id: 29, name: "Morango com L. Cond.", price: 3.50, category: "Fun", image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRvqWtB0fuPqs1gmX9l6C_-AWaecBaknJY9IA&s" }, 
+                        { id: 30, name: "Pedacinho do Céu", price: 3.50, category: "Fun", image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTmQUncqZGlI5iJRY0M_zuNgK5oemaDdZBhSg&s" },
+                        { id: 31, name: "Chiclete", price: 3.50, category: "Fun Zero Lac", image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQdeqz_a0LnKAm_UhxVqP_zmuVXNr6396uzgg&s" }, 
+                        { id: 32, name: "Uva", price: 3.50, category: "Fun Zero Lac", image: "https://ibassets.com.br/ib.item.image.large/l-7582fc7ac1324786afb5e35db60f7669.jpeg" }
+                    ],
+                    config: {
+                        açaíPricePerKg: 43.00,
+                        deletePassword: '1015',
+                    },
+                    ui: {
+                        currentPaymentMethod: null,
+                        manualSalePaymentMethod: null,
+                        isAdminLoggedIn: false,
+                        saleToDelete: null,
+                        lastSaleForReceipt: null,
+                        today: new Date().toISOString().split('T')[0],
+                    }
+                },
+
+                DOM: {},
+
+                init() {
+                    this.cacheDOM();
+                    this.storage.load();
+                    this.bindEvents();
+                    this.render.all();
+                },
+
+                cacheDOM() {
+                    this.DOM = {
+                        container: document.querySelector('.container'),
+                        currentDate: document.getElementById('current-date'),
+                        weightInput: document.getElementById('weight-input'),
+                        calculatedPrice: document.getElementById('calculated-price'),
+                        acaiPriceDisplay: document.getElementById('acai-price-display'),
+                        cartItems: document.getElementById('cart-items'),
+                        subtotal: document.getElementById('subtotal'),
+                        total: document.getElementById('total'),
+                        paymentSection: document.querySelector('.payment-section'),
+                        confirmPaymentButton: document.getElementById('confirm-payment'),
+                        cashInputSection: document.getElementById('cash-input'),
+                        cashReceivedInput: document.getElementById('cash-received'),
+                        changeDisplay: document.getElementById('change-display'),
+                        changeAmount: document.getElementById('change-amount'),
+                        productSearch: document.getElementById('product-search'),
+                        productsCategoriesList: document.getElementById('products-categories-list'),
+                        productsGrid: document.getElementById('products-grid'),
+                        historyDate: document.getElementById('history-date'),
+                        salesHistory: document.getElementById('sales-history'),
+                        loginSection: document.getElementById('login-section'),
+                        adminControlsPanel: document.getElementById('admin-controls-panel'),
+                        acaiPriceInput: document.getElementById('acai-price'),
+                        deletePasswordInput: document.getElementById('delete-password'),
+                        productsManagement: document.getElementById('products-management'),
+                        notification: document.getElementById('notification'),
+                        passwordModal: document.getElementById('password-modal'),
+                        confirmDeletePasswordInput: document.getElementById('confirm-delete-password'),
+                        receiptModal: document.getElementById('receipt-modal'),
+                        receiptContent: document.getElementById('receipt-content'),
+                        manualSaleModal: document.getElementById('manual-sale-modal'),
+                        manualProductSelect: document.getElementById('manual-product-select'),
+                        manualAcaiWeightSection: document.getElementById('manual-acai-weight-section'),
+                        manualAcaiWeightInput: document.getElementById('manual-acai-weight'),
+                        manualSaleCartItems: document.getElementById('manual-sale-cart-items'),
+                        manualSaleSummary: document.getElementById('manual-sale-summary'),
+                        manualSaleTotal: document.getElementById('manual-sale-total'),
+                    };
+                },
+
+                bindEvents() {
+                    this.DOM.weightInput.addEventListener('input', (e) => this.handlers.calculateAcaiPrice(e));
+                    document.getElementById('add-to-cart').addEventListener('click', () => this.handlers.addAcaiToCart());
+                    document.querySelectorAll('.quick-add-btn').forEach(btn => btn.addEventListener('click', (e) => this.handlers.addQuickProduct(e)));
+                    document.getElementById('finish-sale').addEventListener('click', () => this.handlers.preparePayment());
+                    document.getElementById('cancel-sale').addEventListener('click', () => this.handlers.cancelSale());
+                    document.querySelectorAll('#venda-tab .payment-option').forEach(el => el.addEventListener('click', () => this.handlers.selectPaymentMethod(el)));
+                    this.DOM.confirmPaymentButton.addEventListener('click', () => this.handlers.confirmPayment());
+                    this.DOM.cashReceivedInput.addEventListener('input', () => this.handlers.calculateChange());
+                    this.DOM.productSearch.addEventListener('input', () => this.render.products());
+                    this.DOM.historyDate.addEventListener('change', (e) => this.render.history(e.target.value));
+                    document.getElementById('add-manual-sale-btn').addEventListener('click', () => this.handlers.openManualSaleModal());
+                    document.getElementById('export-history-pdf').addEventListener('click', () => this.handlers.exportHistoryToPDF());
+                    document.getElementById('login-btn').addEventListener('click', () => this.handlers.login());
+                    document.getElementById('logout-btn').addEventListener('click', () => this.handlers.logout());
+                    document.getElementById('update-acai-price').addEventListener('click', () => this.handlers.updateAcaiPrice());
+                    document.getElementById('update-delete-password').addEventListener('click', () => this.handlers.updateDeletePassword());
+                    document.getElementById('print-receipt-btn').addEventListener('click', () => this.handlers.printReceipt());
+                    document.getElementById('close-receipt-btn').addEventListener('click', () => this.DOM.receiptModal.style.display = 'none');
+                    document.getElementById('confirm-delete').addEventListener('click', () => this.handlers.confirmDeleteSale());
+                    document.getElementById('cancel-delete').addEventListener('click', () => {
+                        this.DOM.passwordModal.style.display = 'none';
+                        this.DOM.confirmDeletePasswordInput.value = '';
+                    });
+                    document.getElementById('close-manual-sale-btn').addEventListener('click', () => this.DOM.manualSaleModal.style.display = 'none');
+                    this.DOM.manualProductSelect.addEventListener('change', (e) => this.handlers.toggleManualWeightInput(e));
+                    document.getElementById('manual-add-item-btn').addEventListener('click', () => this.handlers.addManualItem());
+                    document.getElementById('save-manual-sale-btn').addEventListener('click', () => this.handlers.saveManualSale());
+                    document.querySelectorAll('#manual-payment-options .payment-option').forEach(el => el.addEventListener('click', () => this.handlers.selectManualPaymentMethod(el)));
+                    document.querySelectorAll('.tab').forEach(t => t.addEventListener('click', () => this.handlers.switchTab(t.dataset.tab)));
+                    document.querySelectorAll('.admin-sub-tab').forEach(t => t.addEventListener('click', () => this.handlers.switchAdminSubTab(t.dataset.subtab)));
+                    
+                    this.DOM.container.addEventListener('click', (e) => {
+                        if (e.target.matches('.cart-item .btn-remove')) this.handlers.removeFromCart(e.target.dataset.index);
+                        if (e.target.matches('#manual-sale-cart-items .btn-remove')) this.handlers.removeManualItem(e.target.dataset.index);
+                        if (e.target.matches('.sales-history .delete-sale')) this.handlers.requestDeleteSale(e.target);
+                    });
+                },
+
+                handlers: {
+                    switchTab(tabName) {
+                        document.querySelector('.tab.active').classList.remove('active');
+                        document.querySelector(`.tab[data-tab="${tabName}"]`).classList.add('active');
+                        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                        document.getElementById(`${tabName}-tab`).classList.add('active');
+                    },
+                    switchAdminSubTab(subTabName) {
+                         document.querySelector('.admin-sub-tab.active').classList.remove('active');
+                         document.querySelector(`.admin-sub-tab[data-subtab="${subTabName}"]`).classList.add('active');
+                         document.querySelectorAll('.admin-sub-content').forEach(c => c.classList.remove('active'));
+                         document.getElementById(`admin-${subTabName}-content`).classList.add('active');
+                    },
+                    calculateAcaiPrice(e) {
+                        const weight = parseFloat(e.target.value) || 0;
+                        App.DOM.calculatedPrice.textContent = (weight / 1000 * App.state.config.açaíPricePerKg).toFixed(2);
+                    },
+                    calculateChange() {
+                        const total = App.state.cart.reduce((sum, item) => sum + item.totalPrice, 0);
+                        const received = parseFloat(App.DOM.cashReceivedInput.value) || 0;
+                        if (received >= total) {
+                            App.DOM.changeAmount.textContent = (received - total).toFixed(2);
+                            App.DOM.changeDisplay.style.display = 'block';
+                        } else {
+                            App.DOM.changeDisplay.style.display = 'none';
+                        }
+                    },
+                    addAcaiToCart() {
+                        const weight = parseFloat(App.DOM.weightInput.value);
+                        if (!weight || weight <= 0) return App.utils.showNotification('Digite um peso válido.', 'error');
+                        const price = (weight / 1000) * App.state.config.açaíPricePerKg;
+                        App.state.cart.push({ id: Date.now(), name: "Açaí por KG", pricePerKg: App.state.config.açaíPricePerKg, weightGrams: weight, totalPrice: price, type: "weight" });
+                        App.render.cart();
+                        App.utils.showNotification(`Açaí (${weight}g) adicionado.`, 'success');
+                        App.DOM.weightInput.value = '';
+                        App.DOM.calculatedPrice.textContent = '0.00';
+                    },
+                    addQuickProduct(e) {
+                        const productId = parseInt(e.currentTarget.dataset.productId);
+                        const product = App.state.products.find(p => p.id === productId);
+                        if (product) this.addProductToCart(product);
+                    },
+                    addProductToCart(product) {
+                        App.state.cart.push({ id: Date.now(), name: product.name, totalPrice: product.price, type: "product" });
+                        App.render.cart();
+                        App.utils.showNotification(`${product.name} adicionado.`, 'success');
+                    },
+                    removeFromCart(index) {
+                        const removed = App.state.cart.splice(index, 1)[0];
+                        App.render.cart();
+                        App.utils.showNotification(`${removed.name} removido.`, 'warning');
+                    },
+                    preparePayment() {
+                        if (App.state.cart.length > 0) {
+                            App.DOM.confirmPaymentButton.style.display = 'flex';
+                            App.DOM.paymentSection.scrollIntoView({ behavior: 'smooth' });
+                        } else App.utils.showNotification('Carrinho vazio.', 'error');
+                    },
+                    selectPaymentMethod(el) {
+                        App.state.ui.currentPaymentMethod = el.dataset.method;
+                        document.querySelectorAll('#venda-tab .payment-option').forEach(o => o.classList.remove('selected'));
+                        el.classList.add('selected');
+                        App.DOM.cashInputSection.style.display = (el.dataset.method === 'cash') ? 'block' : 'none';
+                        this.calculateChange(); // Ensure change is calculated when method is selected
+                    },
+                    confirmPayment() {
+                        const { ui, cart, salesHistory } = App.state;
+                        if (!ui.currentPaymentMethod) return App.utils.showNotification('Selecione uma forma de pagamento.', 'error');
+                        const total = cart.reduce((sum, item) => sum + item.totalPrice, 0);
+                        if (ui.currentPaymentMethod === 'cash') {
+                            const received = parseFloat(App.DOM.cashReceivedInput.value) || 0;
+                            if (received < total) return App.utils.showNotification(`Valor insuficiente.`, 'error');
+                        }
+                        const sale = {
+                            id: Date.now(), date: new Date().toLocaleString('pt-BR'), dateKey: ui.today,
+                            items: [...cart], total: total, paymentMethod: ui.currentPaymentMethod,
+                            cashReceived: ui.currentPaymentMethod === 'cash' ? (parseFloat(App.DOM.cashReceivedInput.value) || 0) : null,
+                            change: ui.currentPaymentMethod === 'cash' ? ((parseFloat(App.DOM.cashReceivedInput.value) || 0) - total) : null
+                        };
+                        if (!salesHistory[ui.today]) salesHistory[ui.today] = [];
+                        salesHistory[ui.today].unshift(sale);
+                        App.storage.saveSalesHistory();
+                        App.utils.showNotification(`Venda finalizada!`, 'success');
+                        App.render.history(ui.today);
+                        ui.lastSaleForReceipt = sale;
+                        App.utils.showReceiptModal(sale);
+                        this.resetSaleState();
+                    },
+                    resetSaleState() {
+                        App.state.cart = [];
+                        App.state.ui.currentPaymentMethod = null;
+                        App.render.cart();
+                        App.DOM.confirmPaymentButton.style.display = 'none';
+                        App.DOM.cashInputSection.style.display = 'none';
+                        App.DOM.cashReceivedInput.value = '';
+                        App.DOM.changeDisplay.style.display = 'none';
+                        App.DOM.changeAmount.textContent = '0,00';
+                        document.querySelectorAll('#venda-tab .payment-option').forEach(el => el.classList.remove('selected'));
+                    },
+                    cancelSale() {
+                        if (App.state.cart.length > 0 && confirm('Tem certeza que deseja cancelar a venda?')) {
+                            this.resetSaleState();
+                            App.utils.showNotification('Venda cancelada.', 'warning');
+                        }
+                    },
+                    login() {
+                        const username = document.getElementById('username').value;
+                        const password = document.getElementById('password').value;
+
+                        const isAdmin = (username === 'admin' && password === 'qwe102030');
+                        const isCreator = (username === 'admcarll' && password === '15243qwe');
+
+                        if (isAdmin || isCreator) {
+                            App.state.ui.isAdminLoggedIn = true;
+                            App.DOM.loginSection.style.display = 'none';
+                            App.DOM.adminControlsPanel.style.display = 'block';
+                            App.utils.showNotification('Login realizado com sucesso.', 'success');
+                        } else {
+                            App.utils.showNotification('Usuário ou senha incorretos.', 'error');
+                        }
+                    },
+                    logout() {
+                        App.state.ui.isAdminLoggedIn = false;
+                        App.DOM.loginSection.style.display = 'block';
+                        App.DOM.adminControlsPanel.style.display = 'none';
+                    },
+                    updateAcaiPrice() {
+                        if(!App.state.ui.isAdminLoggedIn) return App.utils.showNotification('Acesso negado.', 'error');
+                        App.state.config.açaíPricePerKg = parseFloat(App.DOM.acaiPriceInput.value);
+                        App.storage.saveConfig();
+                        App.DOM.acaiPriceDisplay.textContent = App.state.config.açaíPricePerKg.toFixed(2);
+                        App.utils.showNotification('Preço do açaí atualizado.', 'success');
+                    },
+                    updateDeletePassword() {
+                         if(!App.state.ui.isAdminLoggedIn) return App.utils.showNotification('Acesso negado.', 'error');
+                        App.state.config.deletePassword = App.DOM.deletePasswordInput.value;
+                        App.storage.saveConfig();
+                        App.utils.showNotification('Senha de exclusão atualizada.', 'success');
+                    },
+                    requestDeleteSale(target) {
+                        App.state.ui.saleToDelete = { id: parseInt(target.dataset.id), date: target.dataset.date };
+                        App.DOM.passwordModal.style.display = 'flex';
+                    },
+                    confirmDeleteSale() {
+                        if (App.DOM.confirmDeletePasswordInput.value === App.state.config.deletePassword) {
+                            const {id, date} = App.state.ui.saleToDelete;
+                            const saleIndex = App.state.salesHistory[date].findIndex(s => s.id === id);
+                            if (saleIndex > -1) {
+                                App.state.salesHistory[date].splice(saleIndex, 1);
+                                App.storage.saveSalesHistory();
+                                App.render.history(date);
+                                App.utils.showNotification('Venda excluída.', 'success');
+                            }
+                        } else {
+                            App.utils.showNotification('Senha incorreta.', 'error');
+                        }
+                        App.DOM.passwordModal.style.display = 'none';
+                        App.DOM.confirmDeletePasswordInput.value = '';
+                    },
+                    openManualSaleModal() {
+                        App.state.manualSaleCart = [];
+                        App.state.ui.manualSalePaymentMethod = null;
+                        App.render.manualSaleCart();
+                        App.DOM.manualProductSelect.innerHTML = '<option value="">Selecione...</option><option value="acai_kg">Açaí por KG</option>';
+                        App.state.products.forEach(p => {
+                            if (p.category !== 'Bebidas') {
+                                 App.DOM.manualProductSelect.innerHTML += `<option value="${p.id}">${p.name} - R$ ${p.price.toFixed(2)}</option>`;
+                            }
+                        });
+                        App.DOM.manualAcaiWeightSection.style.display = 'none';
+                        document.querySelectorAll('#manual-payment-options .payment-option').forEach(el => el.classList.remove('selected'));
+                        App.DOM.manualSaleModal.style.display = 'flex';
+                    },
+                    toggleManualWeightInput(e) {
+                        App.DOM.manualAcaiWeightSection.style.display = e.target.value === 'acai_kg' ? 'grid' : 'none';
+                    },
+                    addManualItem() {
+                        const selectedId = App.DOM.manualProductSelect.value;
+                        if (!selectedId) return;
+                        if (selectedId === 'acai_kg') {
+                            const weight = parseFloat(App.DOM.manualAcaiWeightInput.value);
+                            if (!weight || weight <= 0) return App.utils.showNotification('Digite um peso válido.', 'error');
+                            const price = (weight / 1000) * App.state.config.açaíPricePerKg;
+                            App.state.manualSaleCart.push({ id: Date.now(), name: "Açaí por KG", weightGrams: weight, totalPrice: price });
+                        } else {
+                            const product = App.state.products.find(p => p.id === parseInt(selectedId));
+                            if (product) App.state.manualSaleCart.push({ id: Date.now(), name: product.name, totalPrice: product.price });
+                        }
+                        App.render.manualSaleCart();
+                    },
+                    removeManualItem(index) {
+                        App.state.manualSaleCart.splice(index, 1);
+                        App.render.manualSaleCart();
+                    },
+                    selectManualPaymentMethod(el) {
+                        App.state.ui.manualSalePaymentMethod = el.dataset.method;
+                        document.querySelectorAll('#manual-payment-options .payment-option').forEach(o => o.classList.remove('selected'));
+                        el.classList.add('selected');
+                    },
+                    saveManualSale() {
+                        const saleDate = App.DOM.historyDate.value;
+                        if (App.state.manualSaleCart.length === 0) return App.utils.showNotification('Adicione itens à venda.', 'error');
+                        if (!App.state.ui.manualSalePaymentMethod) return App.utils.showNotification('Selecione um método de pagamento.', 'error');
+
+                        const total = App.state.manualSaleCart.reduce((sum, item) => sum + item.totalPrice, 0);
+                        const sale = {
+                            id: Date.now(), date: new Date(saleDate + 'T12:00:00').toLocaleString('pt-BR'), dateKey: saleDate,
+                            items: [...App.state.manualSaleCart], total: total, paymentMethod: App.state.ui.manualSalePaymentMethod
+                        };
+                        if (!App.state.salesHistory[saleDate]) App.state.salesHistory[saleDate] = [];
+                        App.state.salesHistory[saleDate].unshift(sale);
+                        App.storage.saveSalesHistory();
+                        App.utils.showNotification('Venda manual salva com sucesso!', 'success');
+                        App.render.history(saleDate);
+                        App.DOM.manualSaleModal.style.display = 'none';
+                    },
+                    exportHistoryToPDF() {
+                        const date = App.DOM.historyDate.value;
+                        const salesForDate = App.state.salesHistory[date] || [];
+
+                        if (salesForDate.length === 0) {
+                            return App.utils.showNotification('Nenhuma venda para exportar nesta data.', 'warning');
+                        }
+
+                        const { jsPDF } = window.jspdf;
+                        const doc = new jsPDF();
+                        const formattedDate = new Date(date + 'T12:00:00').toLocaleDateString('pt-BR');
+
+                        doc.setFontSize(18);
+                        doc.text(`Relatório de Vendas - ${formattedDate}`, 14, 22);
+
+                        const tableColumn = ["Hora", "Itens", "Pagamento", "Total (R$)"];
+                        const tableRows = [];
+                        let dailyTotal = 0;
+
+                        salesForDate.forEach(sale => {
+                            const saleData = [
+                                sale.date.split(' ')[1], // Time
+                                sale.items.map(i => i.name).join(', '),
+                                App.utils.getPaymentMethodName(sale.paymentMethod),
+                                sale.total.toFixed(2)
+                            ];
+                            tableRows.push(saleData);
+                            dailyTotal += sale.total;
+                        });
+
+                        doc.autoTable({
+                            head: [tableColumn],
+                            body: tableRows,
+                            startY: 30,
+                        });
+
+                        const finalY = doc.lastAutoTable.finalY;
+                        doc.setFontSize(12);
+                        doc.text(`Total do Dia: R$ ${dailyTotal.toFixed(2)}`, 14, finalY + 15);
+
+                        doc.save(`relatorio_vendas_${date}.pdf`);
+                        App.utils.showNotification('PDF gerado com sucesso!', 'success');
+                    },
+                    printReceipt() {
+                        const sale = App.state.ui.lastSaleForReceipt;
+                        if (!sale) return App.utils.showNotification("Nenhuma venda recente para imprimir.", "error");
+
+                        const printContent = `<!DOCTYPE html><html><head><title>Recibo</title><style>@page{size:80mm auto;margin:0;padding:0}body{font-family:'Courier New',monospace;font-size:10px;width:80mm;margin:0;padding:5px;box-sizing:border-box;background:#fff}.header{text-align:center;margin-bottom:8px;padding-bottom:5px;border-bottom:1px dashed #000}.header h2{font-size:14px;font-weight:700;margin:5px 0;text-transform:uppercase}.header p{margin:3px 0;font-size:9px}.item{display:flex;justify-content:space-between;margin-bottom:3px;line-height:1.2}.item-name{flex:2;text-align:left;word-break:break-word}.item-price{flex:1;text-align:right}.divider{border-top:1px dashed #000;margin:8px 0}.total{font-weight:700;margin-top:8px;font-size:11px}.payment-info{margin:5px 0;font-size:9px}.footer{text-align:center;margin-top:10px;font-size:8px;border-top:1px dashed #000;padding-top:5px}@media print{body{margin:0;padding:5px;width:80mm}}</style></head><body><div class="header"><h2>Revvo Milk</h2><p>${new Date().toLocaleString('pt-BR')}</p></div><div class="divider"></div>${sale.items.map(item=>`<div class="item"><span class="item-name">${item.name} ${item.weightGrams?`(${item.weightGrams}g)`:""}</span><span class="item-price">R$ ${item.totalPrice.toFixed(2)}</span></div>`).join("")}<div class="divider"></div><div class="item total"><span>TOTAL:</span><span>R$ ${sale.total.toFixed(2)}</span></div><div class="payment-info"><div class="item"><span>Pagamento:</span><span>${App.utils.getPaymentMethodName(sale.paymentMethod)}</span></div>${"cash"===sale.paymentMethod?`<div class="item"><span>Recebido:</span><span>R$ ${sale.cashReceived.toFixed(2)}</span></div><div class="item"><span>Troco:</span><span>R$ ${sale.change.toFixed(2)}</span></div>`:""}</div><div class="footer"><p>Obrigado pela preferência!</p><p>Volte Sempre!</p></div><script>window.onload=()=>{setTimeout(()=>{window.print(),setTimeout(()=>window.close(),100)},100)}<\/script></body></html>`;
+                        const printWindow = window.open('', '_blank');
+                        printWindow.document.write(printContent);
+                        printWindow.document.close();
+                    },
+                },
+
+                render: {
+                    all() {
+                        App.DOM.currentDate.textContent = new Date().toLocaleDateString('pt-BR');
+                        App.DOM.historyDate.value = App.state.ui.today;
+                        App.DOM.acaiPriceInput.value = App.state.config.açaíPricePerKg;
+                        App.DOM.deletePasswordInput.value = App.state.config.deletePassword;
+                        App.DOM.acaiPriceDisplay.textContent = App.state.config.açaíPricePerKg.toFixed(2);
+                        this.cart();
+                        this.productCategories();
+                        this.products();
+                        this.history(App.state.ui.today);
+                        this.adminProducts();
+                    },
+                    cart() {
+                        const { cartItems, subtotal, total } = App.DOM;
+                        cartItems.innerHTML = '';
+                        if (App.state.cart.length === 0) {
+                            cartItems.innerHTML = '<div class="empty-state">Carrinho vazio</div>';
+                            subtotal.textContent = 'R$ 0,00';
+                            total.textContent = 'R$ 0,00';
+                            return;
+                        }
+                        let currentSubtotal = 0;
+                        App.state.cart.forEach((item, index) => {
+                            currentSubtotal += item.totalPrice;
+                            const itemElement = document.createElement('div');
+                            itemElement.className = 'cart-item';
+                            const details = (item.type === "weight") ? `<div class="item-weight">${item.weightGrams}g</div>` : '';
+                            itemElement.innerHTML = `<div class="item-info"><div class="item-quantity">${index + 1}</div><div class="item-details"><div class="item-name">${item.name}</div>${details}</div></div><div class="item-price">R$ ${item.totalPrice.toFixed(2)}</div><div class="item-actions"><button class="btn-small btn-remove" data-index="${index}">✕</button></div>`;
+                            cartItems.appendChild(itemElement);
+                        });
+                        subtotal.textContent = `R$ ${currentSubtotal.toFixed(2)}`;
+                        total.textContent = `R$ ${currentSubtotal.toFixed(2)}`;
+                    },
+                    products() {
+                        const searchTerm = App.DOM.productSearch.value.toLowerCase();
+                        const activeCategoryEl = App.DOM.productsCategoriesList.querySelector('.category-btn.active');
+                        const activeCategory = activeCategoryEl ? activeCategoryEl.dataset.category : 'all';
+                        
+                        let filtered = App.state.products.filter(p => p.category !== 'Bebidas');
+                        if (activeCategory !== 'all') filtered = filtered.filter(p => p.category === activeCategory);
+                        if (searchTerm) filtered = filtered.filter(p => p.name.toLowerCase().includes(searchTerm));
+
+                        App.DOM.productsGrid.innerHTML = '';
+                        if (filtered.length === 0) {
+                            App.DOM.productsGrid.innerHTML = '<div class="empty-state" style="grid-column: 1 / -1;">Nenhum produto encontrado.</div>';
+                            return;
+                        }
+                        filtered.forEach(product => {
+                            const card = document.createElement('div');
+                            card.className = 'product-card';
+                            const imageHtml = product.image ? `<img src="${product.image}" alt="${product.name}">` : '';
+                            card.innerHTML = `<div class="product-image">${imageHtml}</div><div class="product-details"><div class="product-name">${product.name}</div><div class="product-price-card">R$ ${product.price.toFixed(2)}</div></div>`;
+                            card.addEventListener('click', () => App.handlers.addProductToCart(product));
+                            App.DOM.productsGrid.appendChild(card);
+                        });
+                    },
+                    productCategories() {
+                        const categories = ['all', ...new Set(App.state.products.filter(p=>p.category !== 'Bebidas').map(p => p.category))];
+                        App.DOM.productsCategoriesList.innerHTML = categories.map(c => `<button class="category-btn ${c==='all'?'active':''}" data-category="${c}">${c==='all'?'Todos':c}</button>`).join('');
+                        App.DOM.productsCategoriesList.querySelectorAll('.category-btn').forEach(b => b.addEventListener('click', () => {
+                            const currentActive = App.DOM.productsCategoriesList.querySelector('.category-btn.active');
+                            if(currentActive) currentActive.classList.remove('active');
+                            b.classList.add('active');
+                            this.products();
+                        }));
+                    },
+                    history(date) {
+                        App.DOM.salesHistory.innerHTML = '';
+                        const salesForDate = App.state.salesHistory[date] || [];
+                        if (salesForDate.length === 0) {
+                            App.DOM.salesHistory.innerHTML = '<div class="empty-state">Nenhuma venda para esta data</div>';
+                            return;
+                        }
+                        salesForDate.forEach(sale => {
+                            const item = document.createElement('div');
+                            item.className = 'sale-item';
+                            item.innerHTML = `
+                                <div class="sale-info">
+                                    <div class="sale-date">${sale.date}</div>
+                                    <div class="sale-items">${sale.items.map(i => i.name).join(', ')}</div>
+                                    <div class="sale-payment"><span class="payment-icon">${App.utils.getPaymentIcon(sale.paymentMethod)}</span> ${App.utils.getPaymentMethodName(sale.paymentMethod)}</div>
+                                </div>
+                                <div class="sale-total">R$ ${sale.total.toFixed(2)}</div>
+                                <button class="delete-sale" data-id="${sale.id}" data-date="${date}">✕</button>`;
+                            App.DOM.salesHistory.appendChild(item);
+                        });
+                    },
+                    adminProducts() {
+                        App.DOM.productsManagement.innerHTML = '';
+                        App.state.products.forEach(product => {
+                            const control = document.createElement('div');
+                            control.className = 'admin-controls';
+                            control.innerHTML = `<label>${product.name}</label><input type="number" class="admin-input product-price-input" data-id="${product.id}" value="${product.price.toFixed(2)}" step="0.01">`;
+                            const btn = document.createElement('button');
+                            btn.className = 'touch-btn btn-primary';
+                            btn.style.cssText = 'grid-column: 1 / -1; height: auto; padding: 10px; font-size: 1rem;';
+                            btn.textContent = 'Atualizar Preço';
+                            btn.addEventListener('click', () => {
+                                if(!App.state.ui.isAdminLoggedIn) return;
+                                const priceInput = control.querySelector(`.product-price-input`);
+                                const newPrice = parseFloat(priceInput.value);
+                                const productIndex = App.state.products.findIndex(p => p.id === product.id);
+                                if (newPrice >= 0 && productIndex !== -1) {
+                                    App.state.products[productIndex].price = newPrice;
+                                    App.storage.saveProducts();
+                                    App.utils.showNotification(`Preço de ${App.state.products[productIndex].name} atualizado.`, 'success');
+                                    this.products();
+                                    this.adminProducts();
+                                } else App.utils.showNotification('Preço inválido.', 'error');
+                            });
+                            control.appendChild(btn);
+                            App.DOM.productsManagement.appendChild(control);
+                        });
+                    },
+                     manualSaleCart() {
+                        const { manualSaleCartItems, manualSaleSummary, manualSaleTotal } = App.DOM;
+                        manualSaleCartItems.innerHTML = '';
+                        if (App.state.manualSaleCart.length === 0) {
+                            manualSaleCartItems.innerHTML = '<div class="empty-state">Nenhum item</div>';
+                            manualSaleSummary.style.display = 'none';
+                            return;
+                        }
+                        let total = 0;
+                        App.state.manualSaleCart.forEach((item, index) => {
+                             total += item.totalPrice;
+                             const itemElement = document.createElement('div');
+                             itemElement.className = 'cart-item';
+                             const details = item.weightGrams ? `<div class="item-weight">${item.weightGrams}g</div>` : '';
+                             itemElement.innerHTML = `<div class="item-info"><div class="item-quantity">${index+1}</div><div class="item-details"><div class="item-name">${item.name}</div>${details}</div></div><div class="item-price">R$ ${item.totalPrice.toFixed(2)}</div><button class="btn-small btn-remove" data-index="${index}">✕</button>`;
+                             manualSaleCartItems.appendChild(itemElement);
+                        });
+                        manualSaleTotal.textContent = `R$ ${total.toFixed(2)}`;
+                        manualSaleSummary.style.display = 'block';
+                    },
+                },
+
+                utils: {
+                    getPaymentMethodName: (m) => ({ cash: 'Dinheiro', card: 'Cartão', pix: 'PIX' }[m] || 'N/A'),
+                    getPaymentIcon: (m) => ({ cash: '💵', card: '💳', pix: '📱' }[m] || '❓'),
+                    showNotification: (message, type) => {
+                        App.DOM.notification.textContent = message;
+                        App.DOM.notification.className = `notification ${type} show`;
+                        setTimeout(() => App.DOM.notification.classList.remove('show'), 3000);
+                    },
+                    showReceiptModal: (sale) => {
+                        const { receiptContent, receiptModal } = App.DOM;
+                        let text = `       ** Revvo Milk **\n--------------------------------\nData: ${sale.date}\n\nItens:\n`;
+                        sale.items.forEach(item => {
+                            text += `${item.name.padEnd(20)}R$ ${item.totalPrice.toFixed(2).padStart(7)}\n`;
+                            if (item.type === 'weight') text += `  (${item.weightGrams}g)\n`;
+                        });
+                        text += `--------------------------------\nTOTAL:`.padEnd(22) + `R$ ${sale.total.toFixed(2).padStart(7)}\n`;
+                        text += `Pagamento: ${App.utils.getPaymentMethodName(sale.paymentMethod)}\n`;
+                        if (sale.paymentMethod === 'cash') text += `Recebido: R$ ${sale.cashReceived.toFixed(2)}\nTroco: R$ ${sale.change.toFixed(2)}\n`;
+                        text += `\n    Obrigado pela preferência!`;
+                        text += `\n           Volte Sempre!`;
+                        receiptContent.textContent = text;
+                        receiptModal.style.display = 'flex';
+                    },
+                },
+
+                storage: {
+                    load() {
+                        const salesHistory = localStorage.getItem('salesHistory');
+                        const products = localStorage.getItem('products');
+                        const acaiPrice = localStorage.getItem('açaíPricePerKg');
+                        const deletePassword = localStorage.getItem('deletePassword');
+
+                        if(salesHistory) App.state.salesHistory = JSON.parse(salesHistory);
+                        // Do not load products from local storage to use the updated list from the code
+                        // if(products) App.state.products = JSON.parse(products);
+                        if(acaiPrice) App.state.config.açaíPricePerKg = parseFloat(acaiPrice);
+                        if(deletePassword) App.state.config.deletePassword = deletePassword;
+                    },
+                    saveSalesHistory() {
+                        localStorage.setItem('salesHistory', JSON.stringify(App.state.salesHistory));
+                    },
+                    saveConfig() {
+                        localStorage.setItem('açaíPricePerKg', App.state.config.açaíPricePerKg);
+                        localStorage.setItem('deletePassword', App.state.config.deletePassword);
+                    },
+                     saveProducts() {
+                        localStorage.setItem('products', JSON.stringify(App.state.products));
+                    }
+                }
+            };
+
+            App.init();
+        });
+    </script>
+</body>
+</html>
